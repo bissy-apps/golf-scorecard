@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Golf Card Game Scorecard | Bissy Apps</title>
+<meta name="description" content="Free 4-player scorecard for the Golf card game. Running totals, leader tracking, 9 or 18 holes.">
+<meta name="theme-color" content="#1f5a3d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Golf Score">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9827;</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --felt: #1f5a3d;
+    --felt-dark: #154129;
+    --cream: #fbf7ee;
+    --paper: #ffffff;
+    --ink: #1d2a22;
+    --muted: #6b7a70;
+    --line: #e3ddcd;
+    --gold: #e0a92e;
+    --gold-soft: #fbefd0;
+    --red: #b8433a;
+    --good: #2e7d4f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Inter, system-ui, sans-serif;
+    background: var(--felt);
+    background-image: radial-gradient(circle at 20% 0%, #2a6e4b 0%, transparent 60%);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 18px 12px 40px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  header { text-align: center; color: var(--cream); margin-bottom: 16px; }
+  header h1 {
+    font-family: Fraunces, Georgia, serif;
+    font-weight: 800;
+    font-size: clamp(28px, 7vw, 40px);
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+  header p { margin: 4px 0 0; opacity: .8; font-size: 14px; }
+  .suits { letter-spacing: 6px; opacity: .55; font-size: 14px; }
+
+  .card {
+    background: var(--cream);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    overflow: hidden;
+  }
+  .toolbar {
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+    padding: 12px 14px; border-bottom: 1px solid var(--line);
+    background: var(--paper);
+  }
+  .toolbar label { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+  .seg button {
+    border: 0; background: transparent; padding: 6px 12px; font: 600 13px Inter, sans-serif;
+    color: var(--muted); cursor: pointer;
+  }
+  .seg button.on { background: var(--felt); color: #fff; }
+  .spacer { flex: 1; }
+  .btn {
+    border: 1px solid var(--line); background: var(--paper); color: var(--ink);
+    padding: 7px 12px; border-radius: 10px; font: 600 13px Inter, sans-serif; cursor: pointer;
+  }
+  .btn:hover { border-color: var(--felt); }
+  .btn.primary { background: var(--felt); color: #fff; border-color: var(--felt); }
+  .btn.danger { color: var(--red); }
+
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { width: 100%; border-collapse: collapse; min-width: 420px; }
+  th, td { text-align: center; padding: 0; border-bottom: 1px solid var(--line); }
+  thead th {
+    background: var(--felt-dark); color: var(--cream);
+    padding: 8px 4px; position: sticky; top: 0;
+  }
+  thead th:first-child { width: 58px; }
+  .name {
+    width: 100%; background: transparent; border: 0; color: var(--cream);
+    font: 700 15px Inter, sans-serif; text-align: center; padding: 4px 2px;
+    border-bottom: 1px dashed rgba(255,255,255,.35);
+  }
+  .name:focus { outline: none; border-bottom-color: var(--gold); }
+  .holecell {
+    font: 700 14px Inter, sans-serif; color: var(--muted); background: var(--paper);
+  }
+  .holecell small { display: block; font-weight: 500; font-size: 10px; letter-spacing: .5px; text-transform: uppercase; }
+  td input {
+    width: 100%; height: 46px; border: 0; background: transparent;
+    font: 600 18px Inter, sans-serif; text-align: center; color: var(--ink);
+    -moz-appearance: textfield;
+  }
+  td input::-webkit-outer-spin-button, td input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  td input:focus { outline: 2px solid var(--gold); outline-offset: -2px; background: var(--gold-soft); }
+  td.low input { color: var(--good); }
+  td.low { background: rgba(46,125,79,.08); }
+  td.neg input { color: var(--good); }
+  tr.sub td { background: #f3eedf; font-weight: 700; padding: 8px 4px; font-size: 15px; }
+  tr.sub td:first-child { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
+  tfoot td { padding: 12px 4px; background: var(--paper); border-bottom: 0; }
+  tfoot td:first-child { font: 700 11px Inter, sans-serif; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
+  .total { font: 800 26px Fraunces, Georgia, serif; }
+  .rank { display: block; font-size: 12px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+  tfoot td.leader { background: var(--gold-soft); }
+  tfoot td.leader .rank { color: #9a6c08; }
+
+  .status {
+    padding: 14px; text-align: center; font-weight: 600; font-size: 15px;
+    background: var(--paper); border-top: 1px solid var(--line);
+  }
+  .status .crown { font-size: 18px; }
+
+  details.rules {
+    margin-top: 14px; background: var(--cream); border-radius: 14px; padding: 4px 16px;
+    box-shadow: 0 6px 18px rgba(0,0,0,.2);
+  }
+  details.rules summary {
+    cursor: pointer; font-weight: 700; padding: 12px 0; list-style: none;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  details.rules summary::after { content: "+"; font-size: 20px; color: var(--muted); }
+  details.rules[open] summary::after { content: "\2212"; }
+  .vals { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-bottom: 12px; }
+  .val { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; display: flex; justify-content: space-between; font-size: 14px; }
+  .val b { font-variant-numeric: tabular-nums; }
+  .val.good b { color: var(--good); }
+  .rules p { font-size: 13px; color: var(--muted); line-height: 1.5; margin: 0 0 12px; }
+
+  .cellwrap { display: flex; align-items: center; }
+  .cellwrap input { flex: 1; min-width: 0; }
+  .pm {
+    flex: 0 0 auto; width: 30px; height: 30px; margin-right: 4px;
+    border: 1px solid var(--line); border-radius: 8px; background: var(--paper);
+    color: var(--muted); font: 700 16px Inter, sans-serif; line-height: 1;
+    padding: 0; cursor: pointer; touch-action: manipulation;
+  }
+  .pm:active { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+  .signbar {
+    position: fixed; left: 0; right: 0; top: 0; z-index: 9;
+    display: none; gap: 8px; justify-content: center; align-items: center;
+    padding: 8px 12px; background: var(--felt-dark);
+    box-shadow: 0 -4px 14px rgba(0,0,0,.25);
+  }
+  .signbar.show { display: flex; }
+  .signbar button {
+    border: 0; border-radius: 10px; padding: 10px 16px;
+    font: 700 16px Inter, sans-serif; cursor: pointer;
+    -webkit-user-select: none; user-select: none; touch-action: manipulation;
+  }
+  .signbar .flip { background: var(--gold); color: var(--ink); min-width: 120px; }
+  .signbar .next { background: var(--cream); color: var(--ink); }
+  .signbar .hint { color: var(--cream); font-size: 13px; opacity: .8; }
+
+  .modal-back {
+    position: fixed; inset: 0; background: rgba(0,0,0,.45);
+    display: none; align-items: center; justify-content: center; padding: 20px; z-index: 10;
+  }
+  .modal-back.show { display: flex; }
+  .modal {
+    background: var(--cream); border-radius: 16px; padding: 20px; max-width: 340px; width: 100%;
+    box-shadow: 0 20px 50px rgba(0,0,0,.35); text-align: center;
+  }
+  .modal h3 { margin: 0 0 6px; font-family: Fraunces, Georgia, serif; }
+  .modal p { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+  .modal .row { display: flex; gap: 8px; justify-content: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="suits">&#9824; &#9829; &#9827; &#9830;</div>
+    <h1>Golf Scorecard</h1>
+    <p>Lowest total wins. Tap a name to rename a player.</p>
+  </header>
+
+  <div class="card">
+    <div class="toolbar">
+      <label>Holes</label>
+      <div class="seg" id="holesSeg">
+        <button data-h="9" class="on">9</button>
+        <button data-h="18">18</button>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn danger" id="newGame">New game</button>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead><tr id="headRow"><th></th></tr></thead>
+        <tbody id="body"></tbody>
+        <tfoot><tr id="footRow"></tr></tfoot>
+      </table>
+    </div>
+    <div class="status" id="status">Enter scores to get started.</div>
+  </div>
+
+  <details class="rules">
+    <summary>Card values (6-card Golf)</summary>
+    <div class="vals">
+      <div class="val"><span>Ace</span><b>1</b></div>
+      <div class="val good"><span>Two</span><b>&minus;2</b></div>
+      <div class="val"><span>3 to 10</span><b>Face value</b></div>
+      <div class="val"><span>Jack, Queen</span><b>10</b></div>
+      <div class="val good"><span>King</span><b>0</b></div>
+      <div class="val good"><span>Matched column pair</span><b>0</b></div>
+    </div>
+    <p>House rules vary a lot. Some tables score Jokers at &minus;2 or Kings at 0 only when unpaired. Use whatever your group plays, since this card just adds up the numbers you enter. For a negative score, tap the &plusmn; button in that cell, before or after typing the number.</p>
+  </details>
+</div>
+
+
+<div class="modal-back" id="modal">
+  <div class="modal">
+    <h3>Start a new game?</h3>
+    <p>This clears every score. Player names stay.</p>
+    <div class="row">
+      <button class="btn" id="cancelNew">Cancel</button>
+      <button class="btn primary" id="confirmNew">Clear scores</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PLAYERS = 4;
+const KEY = "golf-scorecard-v1";
+let state = { holes: 9, names: ["Player 1","Player 2","Player 3","Player 4"], scores: {} };
+
+try {
+  const saved = JSON.parse(localStorage.getItem(KEY) || "null");
+  if (saved && saved.names) state = Object.assign(state, saved);
+} catch (e) {}
+
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+function getScore(h, p) {
+  const v = state.scores[h + "-" + p];
+  return (v === undefined || v === "" || isNaN(Number(v))) ? null : Number(v);
+}
+
+function buildHead() {
+  const row = document.getElementById("headRow");
+  row.innerHTML = "<th></th>";
+  for (let p = 0; p < PLAYERS; p++) {
+    const th = document.createElement("th");
+    const inp = document.createElement("input");
+    inp.className = "name"; inp.value = state.names[p]; inp.maxLength = 14;
+    inp.setAttribute("aria-label", "Player " + (p + 1) + " name");
+    inp.addEventListener("input", () => { state.names[p] = inp.value || ("Player " + (p + 1)); save(); update(); });
+    inp.addEventListener("focus", () => inp.select());
+    th.appendChild(inp); row.appendChild(th);
+  }
+}
+
+function buildBody() {
+  const body = document.getElementById("body");
+  body.innerHTML = "";
+  for (let h = 1; h <= state.holes; h++) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = '<td class="holecell"><small>Hole</small>' + h + '</td>';
+    for (let p = 0; p < PLAYERS; p++) {
+      const td = document.createElement("td");
+      const inp = document.createElement("input");
+      inp.type = "text"; inp.inputMode = "numeric"; inp.pattern = "-?[0-9]*";
+      inp.setAttribute("aria-label", "Hole " + h + " score for player " + (p + 1));
+      const v = state.scores[h + "-" + p]; inp.value = (v === undefined ? "" : v);
+      inp.dataset.h = h; inp.dataset.p = p;
+      inp.addEventListener("input", () => {
+        let clean = inp.value.replace(/[^0-9-]/g, "").replace(/(?!^)-/g, "");
+        if (clean !== inp.value) inp.value = clean;
+        state.scores[h + "-" + p] = clean; save(); update();
+      });
+      inp.addEventListener("keydown", e => {
+        if (e.key === "Enter") { e.preventDefault(); focusNext(h, p); }
+      });
+      const cell = document.createElement("div"); cell.className = "cellwrap";
+      const pm = document.createElement("button");
+      pm.type = "button"; pm.className = "pm"; pm.innerHTML = "&plusmn;";
+      pm.setAttribute("aria-label", "Make hole " + h + " score negative for player " + (p + 1));
+      pm.addEventListener("click", () => {
+        let v = inp.value;
+        v = v.startsWith("-") ? v.slice(1) : "-" + v;
+        inp.value = v;
+        state.scores[h + "-" + p] = v; save(); update();
+      });
+      cell.appendChild(inp); cell.appendChild(pm);
+      td.appendChild(cell); tr.appendChild(td);
+    }
+    body.appendChild(tr);
+    if (state.holes === 18 && h === 9) {
+      const sub = document.createElement("tr"); sub.className = "sub"; sub.id = "outRow";
+      sub.innerHTML = "<td>Front 9</td>" + Array.from({length: PLAYERS}, (_, p) => '<td id="out' + p + '">0</td>').join("");
+      body.appendChild(sub);
+    }
+  }
+}
+
+function focusNext(h, p) {
+  let np = p + 1, nh = h;
+  if (np >= PLAYERS) { np = 0; nh = h + 1; }
+  if (nh > state.holes) return;
+  const el = document.querySelector('input[data-h="' + nh + '"][data-p="' + np + '"]');
+  if (el) el.focus();
+}
+
+function buildFoot() {
+  const row = document.getElementById("footRow");
+  row.innerHTML = "<td>Total</td>" + Array.from({length: PLAYERS}, (_, p) =>
+    '<td id="tot' + p + '"><span class="total">0</span><span class="rank"></span></td>').join("");
+}
+
+function ordinal(n) { return n + (["th","st","nd","rd"][(n % 100 > 10 && n % 100 < 14) ? 0 : (n % 10 < 4 ? n % 10 : 0)]); }
+
+function update() {
+  const totals = Array(PLAYERS).fill(0);
+  const front = Array(PLAYERS).fill(0);
+  let holesDone = 0, anyScore = false;
+
+  for (let h = 1; h <= state.holes; h++) {
+    const vals = [];
+    for (let p = 0; p < PLAYERS; p++) {
+      const s = getScore(h, p); vals.push(s);
+      if (s !== null) { totals[p] += s; if (h <= 9) front[p] += s; anyScore = true; }
+    }
+    const complete = vals.every(v => v !== null);
+    if (complete) holesDone++;
+    const min = complete ? Math.min(...vals) : null;
+    for (let p = 0; p < PLAYERS; p++) {
+      const td = document.querySelector('input[data-h="' + h + '"][data-p="' + p + '"]').closest("td");
+      td.classList.toggle("low", complete && vals[p] === min);
+      td.classList.toggle("neg", vals[p] !== null && vals[p] < 0);
+    }
+  }
+
+  if (state.holes === 18) for (let p = 0; p < PLAYERS; p++) document.getElementById("out" + p).textContent = front[p];
+
+  const sorted = [...totals].sort((a, b) => a - b);
+  const best = sorted[0];
+  for (let p = 0; p < PLAYERS; p++) {
+    const td = document.getElementById("tot" + p);
+    td.querySelector(".total").textContent = totals[p];
+    const rank = sorted.indexOf(totals[p]) + 1;
+    td.querySelector(".rank").textContent = anyScore ? ordinal(rank) : "";
+    td.classList.toggle("leader", anyScore && totals[p] === best);
+  }
+
+  const status = document.getElementById("status");
+  if (!anyScore) { status.textContent = "Enter scores to get started."; return; }
+  const leaders = state.names.filter((_, p) => totals[p] === best);
+  const who = leaders.length > 1 ? leaders.join(" and ") + " are tied" : leaders[0] + " leads";
+  if (holesDone === state.holes) {
+    status.innerHTML = '<span class="crown">&#127942;</span> ' +
+      (leaders.length > 1 ? leaders.join(" and ") + " tie" : leaders[0] + " wins") + " with " + best + "!";
+  } else {
+    status.textContent = who + " at " + best + ". " + holesDone + " of " + state.holes + " holes complete.";
+  }
+}
+
+function render() { buildHead(); buildBody(); buildFoot(); update(); }
+
+document.querySelectorAll("#holesSeg button").forEach(b => {
+  b.classList.toggle("on", Number(b.dataset.h) === state.holes);
+  b.addEventListener("click", () => {
+    state.holes = Number(b.dataset.h);
+    document.querySelectorAll("#holesSeg button").forEach(x => x.classList.toggle("on", x === b));
+    save(); render();
+  });
+});
+
+const modal = document.getElementById("modal");
+document.getElementById("newGame").onclick = () => modal.classList.add("show");
+document.getElementById("cancelNew").onclick = () => modal.classList.remove("show");
+modal.addEventListener("click", e => { if (e.target === modal) modal.classList.remove("show"); });
+document.getElementById("confirmNew").onclick = () => {
+  state.scores = {}; save(); render(); modal.classList.remove("show");
+};
+
+render();
+</script>
+</body>
+</html>
