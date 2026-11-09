@@ -23,7 +23,7 @@ A single-page, 4-player scorecard for the Golf card game. Bissy Apps.
 
 The live app is at **https://bissyapps.com/apps/golf-scorecard**, served the same way as the Phase 10 and Hand & Foot scorecards:
 
-- This repo is connected to the Vercel project `bissy-golf-scorecard` (`golf-scorecard.vercel.app` belongs to someone else). Every push to `main` deploys it to https://bissy-golf-scorecard.vercel.app.
+- This repo is connected to the Vercel project `golf-scorecard` (its domain has the `-ochre` suffix because `golf-scorecard.vercel.app` belongs to someone else). Every push to `main` deploys it to https://golf-scorecard-ochre.vercel.app.
 - bissyapps.com (the `BissyApps-v1` Next.js site) has a rewrite in its `next.config.ts` that serves `/apps/golf-scorecard` from this project.
 - There is no build step. `vercel.json` serves the files at `/apps/golf-scorecard/` on this project's own domain and redirects `/` to it. Asset URLs in `index.html` and `manifest.webmanifest` use that path.
 
