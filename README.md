@@ -6,7 +6,7 @@ A single-page, 4-player scorecard for the Golf card game. Bissy Apps.
 
 - One self-contained file, `index.html`. All CSS and JavaScript are inline.
 - No build step, no dependencies, no backend.
-- The only external request is Google Fonts (Fraunces and Inter). Without it, system fonts are used.
+- No external requests. Fraunces and Inter are self-hosted in `fonts/` because bissyapps.com's Content Security Policy blocks Google Fonts.
 - Scores and player names are saved in the browser with `localStorage` (key `golf-scorecard-v1`).
 
 ## Features
@@ -19,18 +19,17 @@ A single-page, 4-player scorecard for the Golf card game. Bissy Apps.
 - New game button clears scores and keeps names
 - Collapsible card-value reference for 6-card Golf
 
-## Intended location
+## Deploy
 
-`bissyapps.com/apps/golf-scorecard/`, listed on the `bissyapps.com/apps` page next to the Hand and Foot and Phase 10 scorecards.
+The live app is at **https://bissyapps.com/apps/golf-scorecard**, served the same way as the Phase 10 and Hand & Foot scorecards:
 
-## Integration checklist
+- This repo is connected to the Vercel project `bissy-golf-scorecard` (`golf-scorecard.vercel.app` belongs to someone else). Every push to `main` deploys it to https://bissy-golf-scorecard.vercel.app.
+- bissyapps.com (the `BissyApps-v1` Next.js site) has a rewrite in its `next.config.ts` that serves `/apps/golf-scorecard` from this project.
+- There is no build step. `vercel.json` serves the files at `/apps/golf-scorecard/` on this project's own domain and redirects `/` to it. Asset URLs in `index.html` and `manifest.webmanifest` use that path.
 
-1. Place this folder where the other scorecards live, matching their folder and naming pattern.
-2. Add a card or link for "Golf Scorecard" on the /apps page, using the same markup as the existing scorecard entries.
-3. If the other scorecards share a site header, footer, back link, analytics snippet or favicon, add the same to `index.html`.
-4. Keep the inline `<script>` intact. The table is built by JavaScript.
-5. Test on a phone in Safari. Check that the ± button flips a score negative and totals update.
-6. Deploy the same way the rest of bissyapps.com is deployed.
+## Run it locally
+
+Open `index.html` in a browser for a quick look (fonts and favicon won't load from a file URL). To test with the real paths, run `npx vercel dev` and open http://localhost:3000/apps/golf-scorecard.
 
 ## Known limits
 

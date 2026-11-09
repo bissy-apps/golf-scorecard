@@ -1,0 +1,10 @@
+{
+  "rewrites": [
+    { "source": "/apps/golf-scorecard", "destination": "/index.html" },
+    { "source": "/apps/golf-scorecard/", "destination": "/index.html" },
+    { "source": "/apps/golf-scorecard/:path+", "destination": "/:path+" }
+  ],
+  "redirects": [
+    { "source": "/", "destination": "/apps/golf-scorecard", "permanent": false }
+  ]
+}

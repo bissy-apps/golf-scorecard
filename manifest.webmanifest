@@ -1,0 +1,10 @@
+{
+  "name": "Golf Card Game Scorecard",
+  "short_name": "Golf Score",
+  "start_url": "/apps/golf-scorecard/",
+  "scope": "/apps/golf-scorecard/",
+  "display": "standalone",
+  "background_color": "#1f5a3d",
+  "theme_color": "#1f5a3d",
+  "icons": [{ "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}
